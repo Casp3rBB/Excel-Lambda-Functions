@@ -1,0 +1,286 @@
+Format:
+Category
+Name
+Description
+Function
+
+CoGeom 
+Dist
+Distance Between 2 points. Input as (x1,y1,x2,y2)
+=LAMBDA(xi,yi,xj,yj,SQRT((xj-xi)^2+(yj-yi)^2))
+
+CoGeom 
+DistToNearestPoint
+Find the distance between a point (oRow as (x,y) coor array) and the nearest point a group of points (arr). Please note that this function made use of another user defined lambda function 'Dist'.
+=LAMBDA(arr,oRow,REDUCE(0,SEQUENCE(ROWS(arr)),LAMBDA(a,i,LET(cRow,CHOOSEROWS(arr,i),d,'Lambda Function List'!Dist(oRow,cRow),IF(AND(OR(d<a,a=0),d>0),d,a)))))
+
+CoGeom 
+OffsetLine
+This function offset a line. Input: 2 pts, rLen from pt i, offset length. Output: new point
+=LAMBDA(xi,yi,xj,yj,rLen,oLen,LET(desc,"This is an Offset Function",dist_ij,SQRT((xj-xi)^2+(yj-yi)^2),xp,xi+rLen/dist_ij*(xj-xi),yp,yi+rLen/dist_ij*(yj-yi),mij,IFERROR((yj-yi)/(xj-xi),TAN(PI()/2)),mpq,IFERROR(-1/mij,TAN(PI()/2)),c,yp-mpq*xp,xq,ROUND(xp+oLen*COS(ATAN(mpq)),12),yq,ROUND(yp+oLen*SIN(ATAN(mpq)),12),HSTACK(xq,yq)))
+
+CoGeom 
+PolarToXYCoor
+This function converts polar coor to xy coor. Input: r, theta(deg). Output: x,y
+=LAMBDA(r,theta_deg,LET(theta,RADIANS(theta_deg),x,r*COS(theta),y,r*SIN(theta),HSTACK(x,y)))
+
+CoGeom 
+Rotate
+Rotate a point through another point by some degrees. ROTATEPOINT(float, float, float, float, float, optional string:{"x", "y"})
+=LAMBDA(x,y,deg,x_center,y_center,output_optional_,TOROW(LET(author, "Kinen Ma", version_date,"v1, 2023-08-24", rad,RADIANS(deg),rotation_matric, VSTACK(HSTACK(COS(rad), -SIN(rad)),HSTACK(SIN(rad),COS(rad))),x0, x-x_center,y0,y-y_center, coor_matrix, VSTACK(x0,y0),res_matrix2, MMULT(rotation_matric,coor_matrix),res_matrix, res_matrix2+VSTACK(x_center,y_center), output, IF(ISOMITTED(output_optional_), res_matrix, IF(LOWER(output_optional_)="x",INDEX(res_matrix,1),IF(LOWER(output_optional_)="y", INDEX(res_matrix,2),"please enter x or y for the output parameter"))),output)))
+
+CoGeom, Angle
+AngleBetween3Points
+This function return the angle between 3 points in DEGREE using the cosine formula.
+=LAMBDA(xi,yi,xj,yj,xk,yk,LET(a,'Lambda Function List'!Dist(xi,yi,xj,yj),b,'Lambda Function List'!Dist(xj,yj,xk,yk),c,'Lambda Function List'!Dist(xk,yk,xi,yi),ret,DEGREES(ACOS((a^2+b^2-c^2)/(2*a*b))),ret))
+
+CoGeom, Angle
+AngleBetweenLineAndX
+Get the angle between a line and x axis. Return between -90 to 90 DEGREES.
+=LAMBDA(xi,yi,xj,yj,IFERROR(LET(m,(yj-yi)/(xj-xi),theta,DEGREES(ATAN(m)),theta),90))
+
+CoGeom, Angle, Triangle
+SolveTriangle
+Solve Triangle, Input = length a,b and angle C (angle between a & b). ret shall be = either "a"/"b"/"c"/"AngleA"/"AngleB"/"AngleC".
+=LAMBDA(a,b,angleC,output,LET(RadC,RADIANS(angleC),c,SQRT(a^2+b^2-2*a*b*COS(RadC)),angleA,ASIN(a*SIN(RadC)/c),angleB,ASIN(b*SIN(RadC)/c),IFS(output="a",a,output="b",b,output="c",c,output="AngleA",DEGREES(angleA),output="AngleB",DEGREES(angleB),output="AngleC",angleC,TRUE,"Cannot Identify '"&output & "' output.")))
+
+CoGeom, Circle
+CoorOfCircle
+Creates the coordinates of circle.
+=LAMBDA(r,x0,y0,n,LET(angle,360/n,xCoor,x0+r*COS(RADIANS(angle*SEQUENCE(n))),yCoor,y0+r*SIN(RADIANS(angle*SEQUENCE(n))),HSTACK(xCoor,yCoor)))
+
+Drainage
+GetMHInfoFromPipeSch
+Extract a Manhole Information from pipe schedule. 
+=LAMBDA(CMH,USMH,DSMH,USIL,DSIL,PipeDia,PipeMat,LET(InletInfo,HSTACK(DSMH,DSIL,PipeDia,PipeMat,USMH),InletOutput,IFERROR(FILTER(InletInfo,CHOOSECOLS(InletInfo,1)=CMH),EXPAND("-",1,COLUMNS(InletInfo),"-")),OutletInfo,HSTACK(USMH,USIL,PipeDia,PipeMat,DSMH),OutletOutput,IFERROR(FILTER(OutletInfo,CHOOSECOLS(OutletInfo,1)=CMH),EXPAND("-",1,COLUMNS(InletInfo),"-")),tempArr,'Useful Excel Formula 20240204.xlsm'!ReplaceErrInRange(HSTACK(DROP(InletOutput,,1),DROP(OutletOutput,,1)),"-"),'Useful Excel Formula 20240204.xlsm'!ReplaceErrInRange(HSTACK(CMH,tempArr))))
+
+Drainage
+PipeToMHSchedule
+To Convert Pipe Schedule to Manhole Schedule
+=LAMBDA(CMH,USMH,DSMH,USIL,DSIL,PipeDia,PipeMat,REDUCE(HSTACK("MH","Inlet I.L.","Inlet Pipe Dia","Inlet Pipe Material","Inlet From MH","Outlet DSIL","Outlet Pipe Dia","Outlet Pipe Material","Outlet To MH"),CMH,LAMBDA(a,b,VSTACK(a,'Useful Excel Formula 20240204.xlsm'!GetMHInfoFromPipeSch(b,USMH,DSMH,USIL,DSIL,PipeDia,PipeMat)))))
+
+Excel
+GetWorksheetName
+To Get the Worksheet Name from a cell reference
+=LAMBDA(refCell,MID(CELL("filename",refCell),FIND("]",CELL("filename",refCell))+1,255))
+
+Excel
+NumberToLetter
+Convert Number to Letter
+=LAMBDA(n,IFS(n<1,"INVALID INPUT",n<27,CHAR(n+64),n<703,CHAR(INT((n-1)/26)+64)&CHAR(MOD(n-1,26)+65),n<18279,CHAR(INT((n-703)/676)+65)&CHAR(MOD(INT((n-703)/26),26)+65)&CHAR(MOD(n-703,26)+65),TRUE,"Exceeds limit"))
+
+ExcelRange
+Reverse
+Reverse range of array. REVERSE(array[any])
+=LAMBDA(array, LET(author, "Kinen Ma", version_date,"v1, 2023-08-24", res, REDUCE(, array, LAMBDA(a,x, VSTACK(x, a))), res))
+
+Geotechnical
+CalSoilPressure
+SoilH = Height of Soil Profile in m. WaterH = Height of Water Table in m (from Bottom), K = K Value. Default Length = 1m, Default Density of Soil = 19kN/m3, Default Density of Water = 10kN/m3.
+=LAMBDA(soilH,waterH,K,[Length],[SoilDensity],[WaterDensity],LET(Len,IF(ISOMITTED(Length),1,Length),DenSoil,IF(ISOMITTED(SoilDensity),19,SoilDensity),DenWater,IF(ISOMITTED(WaterDensity),10,WaterDensity),revisedWaterH,IFS(waterH>soilH,soilH,waterH<0,0,TRUE,waterH),soilStress1,IF(soilH>revisedWaterH,DenSoil*(soilH-revisedWaterH),0),soilStress2,soilStress1+(DenSoil-DenWater)*waterH,soilForce1,soilStress1*(soilH-revisedWaterH)/2*Len,soilForce2,(soilStress1+soilStress2)*revisedWaterH/2*Len,TotalSoilForce,soilForce1+soilForce2,OutputDesc,VSTACK("Soil Stress at Water Table = ", "Soil Stress at Bottom = ", "Soil Force Above Water Table = ","Soil Force Below Water Table = "," Total Soil Force = "), outputVal,VSTACK(soilStress1,soilStress2,soilForce1,soilForce2,TotalSoilForce),output,HSTACK(OutputDesc,outputVal),output))
+
+Graph
+ConvertLineDataForPlot
+Convert Line Data in a table in the format (x1,y1,x2,y2) to a list of point that can be plotted in excel graph
+=LAMBDA(arr,LET(emptyRow,MAKEARRAY(1,2,LAMBDA(r,c,NA())),numRows,ROWS(arr),DROP(REDUCE(0,SEQUENCE(numRows),LAMBDA(a,i,VSTACK(a,LET(cRow,CHOOSEROWS(arr,i),VSTACK(WRAPROWS(cRow,2),emptyRow))))),1)))
+
+Graph
+SetGraphLimit
+This function calculate the maximum and minimum limit for graph to ensure the x and y limit will always be a square. These limits are represented by coordinates of 2 points (=output). Plot these 2 points in your graph. Input = (xCoorArr,yCoorArr,a constan
+=LAMBDA(arrX,arrY,adjConst,LET(minX,MIN(arrX)-adjConst,maxX,MAX(arrX)+adjConst,minY,MIN(arrY)-adjConst,maxY,MAX(arrY)+adjConst,extentX,(maxX-minX),extentY,(maxY-minY),extentDiff,ABS(extentX-extentY),AdjMinX,minX-extentDiff/2,AdjMaxX,maxX+extentDiff/2,AdjMinY,minY-extentDiff/2,AdjMaxY,maxY+extentDiff/2,IF(extentX>extentY,VSTACK(HSTACK(minX,AdjMinY),HSTACK(maxX,AdjMaxY)),VSTACK(HSTACK(AdjMinX,minY),HSTACK(AdjMaxX,maxY)))))
+
+GSA
+gsaCircularSection
+To Create the circular section properties definition in GSA format. The output can be copied to the GSA section properties table.
+=LAMBDA(propName,materialType,materialGrade,dia,HSTACK(propName,"",materialType,materialGrade,"from Grade",TEXTJOIN(" ",FALSE,"STD","C",dia)))
+
+GSA
+gsaNode
+To Create the node in GSA format. The output can be copied to the GSA Nodes table.
+=LAMBDA(x,y,z,tranRestr,rotRestr,name,HSTACK(x,y,z,"Global","none","none","none",tranRestr,rotRestr,name))
+
+GSA
+gsaRectSection
+To Create the rectangular section properties definition in GSA format. The output can be copied to the GSA section properties table.
+=LAMBDA(propName,materialType,materialGrade,width,height,HSTACK(propName,"",materialType,materialGrade,"from Grade",TEXTJOIN(" ",FALSE,"STD","R",width,height)))
+
+GSA
+gwaNode
+To Create the node in GSA format. The output can be copied to the GWA Text File Format.
+=LAMBDA(nodeID,x,y,z,restrText,name,HSTACK("NODE.3",nodeID,name,"NO_RGB",x,y,z,restrText))
+
+Interpolate
+InterpolateXY
+Interpolate value for straight line. Input: x1,y1,x2,y2,x. Output: y.
+=LAMBDA(xi,yi,xj,yj,x,LET(ratio,(x-xi)/(xj-xi),y,yi+ratio*(yj-yi),y))
+
+Interpolate
+InterpolateXY2
+Interpolate value for straight line. Input: x1,y1,x2,y2,relative length from (x1,y1). Output: (x,y).
+=LAMBDA(xi,yi,xj,yj,rLen,LET(dist_ij,SQRT((xj-xi)^2+(yj-yi)^2),x,xi+rLen/dist_ij*(xj-xi),y,yi+rLen/dist_ij*(yj-yi),HSTACK(x,y)))
+
+Interpolate
+InterpolateXYTable
+Interpolate x value within x array and corresponding y array (i.e. lookup + interpolate). The array must be already sorted in accending or decending order. INTERPOLATE(float, array[float], array[float])
+=LAMBDA(x_value,x,y, LET(author, "Kinen Ma",version_date,"v3, 2023-09-21", z, HSTACK(x,y), order, IF(INDEX(x,1)<INDEX(x, ROWS(x)),2, -2), bot, XLOOKUP(x_value, x, z, ,-1,order), top, XLOOKUP(x_value, x, z, ,1,order), x1_, INDEX(bot,1), x2_, INDEX(top,1), y1_,INDEX(bot,2),y2_,INDEX(top,2), p, (x_value-x1_)/(x2_-x1_),res,p*y2_+(1-p)*y1_,match_check,IF(x_value=x1_,TRUE,FALSE),output_within,IF(match_check=TRUE,y1_,res),case,IF(ISNA(x1_),"smaller", IF(ISNA(x2_),"larger","within")),lenarray,ROWS(x),xa1_,IF(order=2,INDEX(x,1),INDEX(x,lenarray)),ya1_,IF(order=2,INDEX(y,1),INDEX(y,lenarray)),xa2_,IF(order=2,INDEX(x,2),INDEX(x,lenarray-1)),ya2_,IF(order=2,INDEX(y,2),INDEX(y,lenarray-1)),xar2_,IF(order=-2,INDEX(x,1),INDEX(x,lenarray)),yar2_,IF(order=-2,INDEX(y,1),INDEX(y,lenarray)),xar1_,IF(order=-2,INDEX(x,2),INDEX(x,lenarray-1)),yar1_,IF(order=-2,INDEX(y,2),INDEX(y,lenarray-1)),m,IF(case="smaller", (ya2_-ya1_)/(xa2_-xa1_), (yar2_-yar1_)/(xar2_-xar1_)),c,IF(case="smaller",ya1_-m*xa1_,yar1_-m*xar1_),y_res_outter, m*x_value+c,output,IF(case="within",output_within,y_res_outter),output))
+
+String
+r_find
+Find in reverse a character in text and return the index. r_find(char, str, int)
+=LAMBDA(char,within_text,start_idx, LET(stxt, MID(within_text, start_idx, 1), IF(char = stxt, start_idx, r_find(char, within_text, start_idx - 1))))
+
+Table
+CondenseTableToStr_Bracket
+Convert a range representing a table data to a text string. Each row will be closed by (bracket) and each item in the row will be separted by ','.
+=LAMBDA(arr,TEXTJOIN("",TRUE,BYROW(arr,LAMBDA(cRow,"("&TEXTJOIN(",",TRUE,cRow)&") "))))
+
+Table
+CondenseTableToStr_BracketWithNextLine
+Condense table to a string. A new line will be inserted by every n of the brackets (every n line of rows in the table). 
+=LAMBDA(arr,n,LET(numRows,ROWS(arr),REDUCE("",SEQUENCE(numRows),LAMBDA(a,i,LET(cRow,CHOOSEROWS(arr,i),a&"("&TEXTJOIN(",",TRUE,cRow)&IF(MOD(i,n)=0,")"&CHAR(10),") "))))))
+
+Table
+CreateStepRange
+Make range of array by specifing start, end, and optional step. RANGE(float, float, optional_int)
+=LAMBDA(start,end,numOfStep_optional,LET(author, "Kinen Ma", version_date,"v1, 2023-08-21", omitted,ISOMITTED(numOfStep_optional),step,IF(omitted=FALSE,numOfStep_optional,end-start+1),step_2, FLOOR.MATH(step),increment,(end-start)/(step_2-1),arr,MAKEARRAY(step_2,1,LAMBDA(x,y, start+(x-1)*increment)),arr))
+
+Table
+ExpandStrToTable_Bracket
+Expand a string that containing table data.
+=LAMBDA(str,TEXTSPLIT(TEXTSPLIT(str,",",")",TRUE),"(",,TRUE))
+
+Table
+GetColumnArr
+Get the Range of the Whole Column of Input Reference Cell
+=LAMBDA(refCell,LET(ColumnNumber,COLUMN(refCell),sheetName,'Lambda Function List'!GetWorksheetName(refCell),colRefLocal,TEXTJOIN(":",TRUE,'Lambda Function List'!NumberToLetter(ColumnNumber),'Lambda Function List'!NumberToLetter(ColumnNumber)),colRefWB,"'"&sheetName&"'!"&colRefLocal,INDIRECT(colRefWB)))
+
+Table
+GetTableRange
+Expand the input row to the last row of the table (Until the next empty cell). INPUT: Ref Cell (first row of certain column in the table). RETURN: the spill range of the column. Last Update at 2024-02-04.
+=LAMBDA(refCell,[MaxNumOfRows],[FixNumOfRows],LET(maxRow, IF(ISOMITTED(MaxNumOfRows), 1048576, ROW(refCell) + MaxNumOfRows - 1), col, OFFSET(refCell, 0, 0, maxRow - ROW(refCell) + 1, 1), numRows, IF(ISOMITTED(FixNumOfRows), MATCH(TRUE, ISBLANK(col), 0) - 1, FixNumOfRows), numCol, COLUMNS(refCell), returnRng, OFFSET(refCell, 0, 0, numRows, numCol), returnRng))
+
+Table
+GetTableRange2D
+Expand the input row to the last row of the table, and input column to the last column of the table (Until the next empty cell). INPUT: Ref Cell (first cell of a 2D table). RETURN: the spill range of the column. Last Update at 2024-10-08, Kinen Ma.
+=LAMBDA(refCell,[MaxNumOfRows],[FixNumOfRows], LET(maxRow, IF(ISOMITTED(MaxNumOfRows), 1048576, ROW(refCell) + MaxNumOfRows - 1), col, OFFSET(refCell, 0, 0, maxRow - ROW(refCell) + 1, 1), numRows, IF(ISOMITTED(FixNumOfRows), MATCH(TRUE, ISBLANK(col), 0) - 1, FixNumOfRows), row, OFFSET(refCell, 0, 0, 1, 16384 - COLUMN(refCell) + 1), numCols, MATCH(TRUE, ISBLANK(row), 0) - 1, returnRng, OFFSET(refCell, 0, 0, numRows, numCols), returnRng))
+
+Table
+ReplaceErrInRange
+To Replace all the Error '#N/A' in a range by input string. Default string = ""
+=LAMBDA(arr,[FillStr],MAP(arr,LAMBDA(a,IF(ISERROR(a),IF(ISOMITTED(FillStr),"",FillStr),a))))
+
+Table
+Flatten
+To flatten a 2D array into a 1D array
+=LAMBDA(arr,[by_col],LET(array,IF(by_col=TRUE,TRANSPOSE(arr),arr),INDEX(array,ROUNDUP(SEQUENCE(ROWS(array)*COLUMNS(array))/COLUMNS(array),0),MOD(SEQUENCE(ROWS(array)*COLUMNS(array),,0),COLUMNS(array))+1)))
+
+Table
+TableRange
+Get the desire range as spill range
+=LAMBDA(x, MAP(x, LAMBDA(x, IF(ISBLANK(x), "", x))))
+
+Water
+SolveLevels
+Input: Length in m. Fall (1:xxx). Upstream Level in mPD. Downstream Level in mPD. Fall, Upstream and Downstream --> Input 2 out of 3
+=LAMBDA(Length,[fall],[upstreamLevel],[downstreamLevel],LET(isInputFall,IF(OR(ISOMITTED(fall),fall="",fall=0),FALSE,TRUE),isInputUpLevel,IF(OR(ISOMITTED(upstreamLevel),upstreamLevel=""),FALSE,TRUE),isInputDownLevel,IF(OR(ISOMITTED(downstreamLevel),downstreamLevel=""),FALSE,TRUE),validateInput,IF(SUM(isInputFall,isInputDownLevel,isInputUpLevel)=2,TRUE,FALSE),CalFall,Length/(upstreamLevel-downstreamLevel),CalUpstream,downstreamLevel+Length/fall,CalDownstream,upstreamLevel-Length/fall,IF(validateInput,HSTACK(IF(isInputFall,fall,CalFall),IF(isInputUpLevel,upstreamLevel,CalUpstream),IF(isInputDownLevel,downstreamLevel,CalDownstream)),"Please Input 2 out of 3 Items")))
+
+-
+FindEle_MemberFirstEle
+To find the FIRST element of a connected member. When an element is connected by several elements, only the first element will be matched and considered as the member. Elements in a loop will return error. Last Update at 2024-02-03.
+=LAMBDA(cEle,EleArr,ptIArr,ptJArr,[matchedEles],IF(cEle = "-", TAKE(TEXTSPLIT(matchedEles, ","), 1, 1), Lambda Function List!FindEle_MemberFirstEle(LET(ptI, XLOOKUP(cEle, EleArr, ptIArr, "No Result"), preEle, XLOOKUP(ptI, ptJArr, EleArr, "-"), preEle), EleArr, ptIArr, ptJArr, TEXTJOIN(",", TRUE, cEle, matchedEles))))
+
+-
+FindEle_MemberLastEle
+To find the LAST element of a connected member. When an element is connected by several elements, only the first element will be matched and considered as the member. Elements in a loop will return error. Last Update at 2024-02-03.
+=LAMBDA(cEle,EleArr,ptIArr,ptJArr,[nEle],IF(OR(cEle = nEle, cEle = "No Result"), cEle, Lambda Function List!FindEle_MemberLastEle(LET(ptJ, XLOOKUP(cEle, EleArr, ptJArr, "No Result"), nextEle, IF(ptJ = "No Result", ptI, XLOOKUP(ptJ, ptIArr, EleArr, cEle)), nextEle), EleArr, ptIArr, ptJArr, cEle)))
+
+-
+FindEle_MemberPrecedingEles
+0
+=LAMBDA(cEle,EleArr,ptIArr,ptJArr,[pEle],[output],IF(cEle = pEle, IF(output = "", "-", output), Lambda Function List!FindEle_MemberPrecedingEles(LET(ptI, XLOOKUP(cEle, EleArr, ptIArr, "No Result"), preEle, XLOOKUP(ptI, ptJArr, EleArr, cEle), preEle), EleArr, ptIArr, ptJArr, cEle, IF(ISOMITTED(pEle), "", TEXTJOIN(",", TRUE, cEle, output)))))
+
+-
+FindEle_MemberSubsequentEles
+0
+=LAMBDA(cEle,EleArr,ptIArr,ptJArr,[nEle],[output],IF(cEle = nEle, IF(output = "", "-", output), Lambda Function List!FindEle_MemberSubsequentEles(LET(ptJ, XLOOKUP(cEle, EleArr, ptJArr, "No Result"), nextEle, XLOOKUP(ptJ, ptIArr, EleArr, cEle), nextEle), EleArr, ptIArr, ptJArr, cEle, IF(ISOMITTED(nEle), "", TEXTJOIN(",", TRUE, output, cEle)))))
+
+-
+FindEle_Next
+To find the NEXT elements that connected to an element 'cEle'. Last Update at 2024-02-03.
+=LAMBDA(cEle,EleArr,ptIArr,ptJArr,[ReturnValWhenNotFound],LET(ptJ, XLOOKUP(cEle, EleArr, ptJArr), ret, IF(ISOMITTED(ReturnValWhenNotFound), "-", ReturnValWhenNotFound), TEXTJOIN(",", TRUE, FILTER(EleArr, ptIArr = ptJ, ret))))
+
+-
+_FilterDatabase
+0
+='Lambda Function List'!$C$5:$F$5
+
+-
+FindEle_NextMultiple
+To find the NEXT elements that connected to a group of elements 'cEles'. Each element in cEles shall be separated by ",". Example of cEles Input: "ele1,ele2,ele10". Last Update at 2024-02-04.
+=LAMBDA(cEles,EleArr,ptIArr,ptJArr,IF(cEles = "", "", REDUCE("", TEXTSPLIT(cEles, ","), LAMBDA(a,cEle, TEXTJOIN(",", TRUE, a, Lambda Function List!FindEle_Next(cEle, EleArr, ptIArr, ptJArr, ""))))))
+
+-
+FindEle_PrecedingAll
+To find ALL PRECEDING elements that connected to element(s) 'cEles'. Last Update at 2024-02-03.
+=LAMBDA(cEles,EleArr,ptIArr,ptJArr,[pEles],[output],IF(cEles = pEles, IF(output = "", "-", output), Lambda Function List!FindEle_PrecedingAll(Lambda Function List!FindEle_PreviousMultiple(cEles, EleArr, ptIArr, ptJArr), EleArr, ptIArr, ptJArr, cEles, IF(ISOMITTED(pEles), "", TEXTJOIN(",", TRUE, cEles, output)))))
+
+-
+FindEle_Previous
+To find the PREVIOUS elements that connected to an element 'cEle'. Last Update at 2024-02-03.
+=LAMBDA(cEle,EleArr,ptIArr,ptJArr,[ReturnValWhenNotFound],LET(ptI, XLOOKUP(cEle, EleArr, ptIArr), ret, IF(ISOMITTED(ReturnValWhenNotFound), "-", ReturnValWhenNotFound), TEXTJOIN(",", TRUE, FILTER(EleArr, ptJArr = ptI, ret))))
+
+-
+FindEle_PreviousMultiple
+To find the PREVIOUS elements that connected to a group of elements 'cEles'. Each element in cEles shall be separated by ",". Example of cEles Input: "ele1,ele2,ele10". Last Update at 2024-02-04.
+=LAMBDA(cEles,EleArr,ptIArr,ptJArr,IF(cEles = "", "", REDUCE("", TEXTSPLIT(cEles, ","), LAMBDA(a,cEle, TEXTJOIN(",", TRUE, a, Lambda Function List!FindEle_Previous(cEle, EleArr, ptIArr, ptJArr, ""))))))
+
+-
+FindEle_SubsequentAll
+To find ALL SUBSEQUENT elements that connected to element(s) 'cEles'. Last Update at 2024-02-03.
+=LAMBDA(cEles,EleArr,ptIArr,ptJArr,[pEles],[output],IF(cEles = pEles, IF(output = "", "-", output), Lambda Function List!FindEle_SubsequentAll(Lambda Function List!FindEle_NextMultiple(cEles, EleArr, ptIArr, ptJArr), EleArr, ptIArr, ptJArr, cEles, IF(ISOMITTED(pEles), "", TEXTJOIN(",", TRUE, output, cEles)))))
+
+-
+FindNode_Next
+To find the Next nodes that connected to an node 'cNode'. Last Update at 2024-02-04.
+=LAMBDA(cNode,ptIArr,ptJArr,[ReturnValWhenNotFound],LET(ret, IF(ISOMITTED(ReturnValWhenNotFound), "-", ReturnValWhenNotFound), TEXTJOIN(",", TRUE, FILTER(ptJArr, ptIArr = cNode, ret))))
+
+-
+FindNode_NextMultiple
+To find the NEXT nodes that connected to a group of nodes 'cNodes'. Each node in cNodes shall be separated by ",". Example of cNodes Input: "node1,node2,node3". Last Update at 2024-02-04.
+=LAMBDA(cNodes,ptIArr,ptJArr,IF(cNodes = "", "", REDUCE("", TEXTSPLIT(cNodes, ","), LAMBDA(a,cNode, TEXTJOIN(",", TRUE, a, Lambda Function List!FindNode_Next(cNode, ptIArr, ptJArr, ""))))))
+
+-
+FindNode_PrecedingAll
+To find ALL PRECEDING nodes that connected to node(s) 'cNodes'. Last Update at 2024-02-04.
+=LAMBDA(cNodes,ptIArr,ptJArr,[pNodes],[output],IF(cNodes = pNodes, IF(output = "", "-", output), Lambda Function List!FindNode_PrecedingAll(Lambda Function List!FindNode_PreviousMultiple(cNodes, ptIArr, ptJArr), ptIArr, ptJArr, cNodes, IF(ISOMITTED(pNodes), "", TEXTJOIN(",", TRUE, cNodes, output)))))
+
+-
+FindNode_Previous
+To find the PREVIOUS nodes that connected to an node 'cNode'. Last Update at 2024-02-03.
+=LAMBDA(cNode,ptIArr,ptJArr,[ReturnValWhenNotFound],LET(ret, IF(ISOMITTED(ReturnValWhenNotFound), "-", ReturnValWhenNotFound), TEXTJOIN(",", TRUE, FILTER(ptIArr, ptJArr = cNode, ret))))
+
+-
+FindNode_PreviousMultiple
+To find the PREVIOUS nodes that connected to a group of nodes 'cNodes'. Each node in cNodes shall be separated by ",". Example of cNodes Input: "node1,node2,node3". Last Update at 2024-02-04.
+=LAMBDA(cNodes,ptIArr,ptJArr,IF(cNodes = "", "", REDUCE("", TEXTSPLIT(cNodes, ","), LAMBDA(a,cNode, TEXTJOIN(",", TRUE, a, Lambda Function List!FindNode_Previous(cNode, ptIArr, ptJArr, ""))))))
+
+-
+FindNode_SubsequentAll
+To find ALL SUBSEQUENT nodes that connected to node(s) 'cNodes'. Last Update at 2024-02-04.
+=LAMBDA(cNodes,ptIArr,ptJArr,[pNodes],[output],IF(cNodes = pNodes, IF(output = "", "-", output), Lambda Function List!FindNode_SubsequentAll(Lambda Function List!FindNode_NextMultiple(cNodes, ptIArr, ptJArr), ptIArr, ptJArr, cNodes, IF(ISOMITTED(pNodes), "", TEXTJOIN(",", TRUE, output, cNodes)))))
+
+-
+isFirstNode
+To check if a node is the FIRST node (no element end node J connecting to it). Last Update 2024-02-04 
+=LAMBDA(cNode,jtIArr,jtJArr,IF(LEN(XLOOKUP(cNode, jtJArr, jtJArr, "")) = 0, TRUE, FALSE))
+
+-
+isLastNode
+To check if a node is the Last node (no element end node I connecting to it). Last Update 2024-02-04 
+=LAMBDA(cNode,jtIArr,jtJArr,IF(LEN(XLOOKUP(cNode, jtIArr, jtIArr, "")) = 0, TRUE, FALSE))
+
+-
+XLOOKUP_Multi
+Performs xlookup for each of the lookupVal input (array input). Last update at 2024-02-05.
+=LAMBDA(lookupVal,lookupArr,returnArr,[ifNotFound],LET(fillRowIfNotFound, EXPAND(ifNotFound, 1, COLUMNS(returnArr), ifNotFound), DROP(REDUCE(0, lookupVal, LAMBDA(a,b, VSTACK(a, XLOOKUP(b, lookupArr, returnArr, fillRowIfNotFound)))), 1)))
+
