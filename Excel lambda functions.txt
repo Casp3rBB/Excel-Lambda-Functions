@@ -178,6 +178,11 @@ TableRange
 Get the desire range as spill range
 =LAMBDA(x, MAP(x, LAMBDA(x, IF(ISBLANK(x), "", x))))
 
+Table
+ExplodeArrayTo2D
+To reshape a 1D array into a 2D array. ExplodeArrayTo2D(array, num of cols)
+=LAMBDA(array,numCols, LET(numElements, COUNTA(array), numRows, CEILING(numElements / numCols, 1), indices, SEQUENCE(numRows, numCols, 1, 1), rowIndex, INT((indices - 1) / numCols) + 1, colIndex, MOD(indices - 1, numCols) + 1, linearIndex, (rowIndex - 1) * numCols + colIndex, reshaped, IF(linearIndex <= numElements, INDEX(array, linearIndex), NA()), reshaped))
+
 Water
 SolveLevels
 Input: Length in m. Fall (1:xxx). Upstream Level in mPD. Downstream Level in mPD. Fall, Upstream and Downstream --> Input 2 out of 3
