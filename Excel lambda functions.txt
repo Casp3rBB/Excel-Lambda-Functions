@@ -169,6 +169,11 @@ To Replace all the Error '#N/A' in a range by input string. Default string = ""
 =LAMBDA(arr,[FillStr],MAP(arr,LAMBDA(a,IF(ISERROR(a),IF(ISOMITTED(FillStr),"",FillStr),a))))
 
 Table
+Repeat
+Repeat an array n times. Repeat(array, n, [mode]). mode{1:element-wise, 2:whole array}
+=LAMBDA(range,n,[mode], LET(actual_mode, IF(ISOMITTED(mode), 1, mode), arr, range, r, ROWS(arr), c, COLUMNS(arr), is1D, OR(r = 1, c = 1), processed, IF(is1D, TOCOL(arr, 0), arr), cnt, IF(is1D, ROWS(processed), r), new_r, cnt * n, new_c, IF(is1D, 1, c), MAKEARRAY(new_r, new_c, LAMBDA(row,col, LET(orig_row, IF(actual_mode = 1, CEILING.MATH(row / n), MOD(row - 1, cnt) + 1), IF(is1D, INDEX(processed, orig_row), INDEX(processed, orig_row, col)))))))
+
+Table
 Flatten
 To flatten a 2D array into a 1D array
 =LAMBDA(arr,[by_col],LET(array,IF(by_col=TRUE,TRANSPOSE(arr),arr),INDEX(array,ROUNDUP(SEQUENCE(ROWS(array)*COLUMNS(array))/COLUMNS(array),0),MOD(SEQUENCE(ROWS(array)*COLUMNS(array),,0),COLUMNS(array))+1)))
