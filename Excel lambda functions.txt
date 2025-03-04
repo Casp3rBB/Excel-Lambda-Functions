@@ -128,6 +128,16 @@ r_find
 Find in reverse a character in text and return the index. r_find(char, str, int)
 =LAMBDA(char,within_text,start_idx, LET(stxt, MID(within_text, start_idx, 1), IF(char = stxt, start_idx, r_find(char, within_text, start_idx - 1))))
 
+String
+ColumnLabelToNumber
+Converts an Excel column label to its corresponding column number. For example, 'A' returns 1, 'B' returns 2, 'AA' returns 27, 'AB' returns 28. The input should be a string of one or more letters (A-Z), and is case-insensitive.
+=LAMBDA(text, LET(upper_text, UPPER(text), n, LEN(text), SUM((CODE(MID(upper_text, SEQUENCE(n), 1)) - 64) * 26^(n - SEQUENCE(n)))))
+
+String
+ColumnNumberToLabel
+Converts a positive integer into its corresponding Excel column label (e.g., 1 → "A", 26 → "Z", 28 → "AB", 702 → "ZZ")
+=LAMBDA(n, IF(n>0, ColumnNumberToLabel(INT((n-1)/26)) & CHAR(65 + MOD(n-1, 26)), ""))
+
 Table
 CondenseTableToStr_Bracket
 Convert a range representing a table data to a text string. Each row will be closed by (bracket) and each item in the row will be separted by ','.
