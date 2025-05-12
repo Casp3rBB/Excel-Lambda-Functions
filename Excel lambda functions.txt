@@ -11,7 +11,7 @@ Distance Between 2 points. Input as (x1,y1,x2,y2)
 CoGeom 
 DistToNearestPoint
 Find the distance between a point (oRow as (x,y) coor array) and the nearest point a group of points (arr). Please note that this function made use of another user defined lambda function 'Dist'.
-=LAMBDA(arr,oRow,REDUCE(0,SEQUENCE(ROWS(arr)),LAMBDA(a,i,LET(cRow,CHOOSEROWS(arr,i),d,'Lambda Function List'!Dist(oRow,cRow),IF(AND(OR(d<a,a=0),d>0),d,a)))))
+=LAMBDA(arr,oRow,REDUCE(0,SEQUENCE(ROWS(arr)),LAMBDA(a,i,LET(cRow,CHOOSEROWS(arr,i),d,Lambda!Dist(oRow,cRow),IF(AND(OR(d<a,a=0),d>0),d,a)))))
 
 CoGeom 
 OffsetLine
@@ -31,7 +31,7 @@ Rotate a point through another point by some degrees. ROTATEPOINT(float, float, 
 CoGeom, Angle
 AngleBetween3Points
 This function return the angle between 3 points in DEGREE using the cosine formula.
-=LAMBDA(xi,yi,xj,yj,xk,yk,LET(a,'Lambda Function List'!Dist(xi,yi,xj,yj),b,'Lambda Function List'!Dist(xj,yj,xk,yk),c,'Lambda Function List'!Dist(xk,yk,xi,yi),ret,DEGREES(ACOS((a^2+b^2-c^2)/(2*a*b))),ret))
+=LAMBDA(xi,yi,xj,yj,xk,yk,LET(a,Lambda!Dist(xi,yi,xj,yj),b,Lambda!Dist(xj,yj,xk,yk),c,Lambda!Dist(xk,yk,xi,yi),ret,DEGREES(ACOS((a^2+b^2-c^2)/(2*a*b))),ret))
 
 CoGeom, Angle
 AngleBetweenLineAndX
@@ -48,15 +48,25 @@ CoorOfCircle
 Creates the coordinates of circle.
 =LAMBDA(r,x0,y0,n,LET(angle,360/n,xCoor,x0+r*COS(RADIANS(angle*SEQUENCE(n))),yCoor,y0+r*SIN(RADIANS(angle*SEQUENCE(n))),HSTACK(xCoor,yCoor)))
 
+Coordinates
+HKCoor_to_LatLong
+Approximately convert Hong Kong Easting and Northing to Latitute and Longitutude
+=LAMBDA(E,N, LET(dE, E-836694.05, dN, N-819069.8, dLat, dN/111000, dLong, dE/103000, lat, 22.3121333333333+dLat, long, 114.178555555556+dLong, HSTACK(lat, long)))
+
+Coordinates
+LatLong_to_HKCoor
+Approximately convert Latitute and Longitutude to Hong Kong Easting and Northing
+=LAMBDA(lat, long, LET(E, 836694.05 + 103000 * (long - 114.178555555556), N, 819069.8 + 111000 * (lat - 22.3121333333333), HSTACK(E, N)))
+
 Drainage
 GetMHInfoFromPipeSch
 Extract a Manhole Information from pipe schedule. 
-=LAMBDA(CMH,USMH,DSMH,USIL,DSIL,PipeDia,PipeMat,LET(InletInfo,HSTACK(DSMH,DSIL,PipeDia,PipeMat,USMH),InletOutput,IFERROR(FILTER(InletInfo,CHOOSECOLS(InletInfo,1)=CMH),EXPAND("-",1,COLUMNS(InletInfo),"-")),OutletInfo,HSTACK(USMH,USIL,PipeDia,PipeMat,DSMH),OutletOutput,IFERROR(FILTER(OutletInfo,CHOOSECOLS(OutletInfo,1)=CMH),EXPAND("-",1,COLUMNS(InletInfo),"-")),tempArr,'Useful Excel Formula 20240204.xlsm'!ReplaceErrInRange(HSTACK(DROP(InletOutput,,1),DROP(OutletOutput,,1)),"-"),'Useful Excel Formula 20240204.xlsm'!ReplaceErrInRange(HSTACK(CMH,tempArr))))
+=LAMBDA(CMH,USMH,DSMH,USIL,DSIL,PipeDia,PipeMat,LET(InletInfo,HSTACK(DSMH,DSIL,PipeDia,PipeMat,USMH),InletOutput,IFERROR(FILTER(InletInfo,CHOOSECOLS(InletInfo,1)=CMH),EXPAND("-",1,COLUMNS(InletInfo),"-")),OutletInfo,HSTACK(USMH,USIL,PipeDia,PipeMat,DSMH),OutletOutput,IFERROR(FILTER(OutletInfo,CHOOSECOLS(OutletInfo,1)=CMH),EXPAND("-",1,COLUMNS(InletInfo),"-")),tempArr,'Steel Section Table r2.xlsm'!ReplaceErrInRange(HSTACK(DROP(InletOutput,,1),DROP(OutletOutput,,1)),"-"),'Steel Section Table r2.xlsm'!ReplaceErrInRange(HSTACK(CMH,tempArr))))
 
 Drainage
 PipeToMHSchedule
 To Convert Pipe Schedule to Manhole Schedule
-=LAMBDA(CMH,USMH,DSMH,USIL,DSIL,PipeDia,PipeMat,REDUCE(HSTACK("MH","Inlet I.L.","Inlet Pipe Dia","Inlet Pipe Material","Inlet From MH","Outlet DSIL","Outlet Pipe Dia","Outlet Pipe Material","Outlet To MH"),CMH,LAMBDA(a,b,VSTACK(a,'Useful Excel Formula 20240204.xlsm'!GetMHInfoFromPipeSch(b,USMH,DSMH,USIL,DSIL,PipeDia,PipeMat)))))
+=LAMBDA(CMH,USMH,DSMH,USIL,DSIL,PipeDia,PipeMat,REDUCE(HSTACK("MH","Inlet I.L.","Inlet Pipe Dia","Inlet Pipe Material","Inlet From MH","Outlet DSIL","Outlet Pipe Dia","Outlet Pipe Material","Outlet To MH"),CMH,LAMBDA(a,b,VSTACK(a,'Steel Section Table r2.xlsm'!GetMHInfoFromPipeSch(b,USMH,DSMH,USIL,DSIL,PipeDia,PipeMat)))))
 
 Excel
 GetWorksheetName
@@ -126,7 +136,7 @@ Interpolate x value within x array and corresponding y array (i.e. lookup + inte
 String
 r_find
 Find in reverse a character in text and return the index. r_find(char, str, int)
-=LAMBDA(char,within_text,start_idx, LET(stxt, MID(within_text, start_idx, 1), IF(char = stxt, start_idx, r_find(char, within_text, start_idx - 1))))
+=LAMBDA(char,within_text,start_idx, LET(stxt, MID(within_text, start_idx, 1), IF(char = stxt, start_idx, Lambda!r_find(char, within_text, start_idx - 1))))
 
 String
 ColumnLabelToNumber
@@ -137,6 +147,16 @@ String
 ColumnNumberToLabel
 Converts a positive integer into its corresponding Excel column label (e.g., 1 → "A", 26 → "Z", 28 → "AB", 702 → "ZZ")
 =LAMBDA(n, IF(n>0, ColumnNumberToLabel(INT((n-1)/26)) & CHAR(65 + MOD(n-1, 26)), ""))
+
+String
+fstring
+Formats strings using {} placeholders replaced by arguments. Note if parameters are not adjacent, use VSTACK for the args.
+=LAMBDA(formatString,args, LET(parts, TEXTSPLIT(formatString, "{}"), m, COLUMNS(parts), CONCAT(MAKEARRAY(1, 2*m - 1, LAMBDA(r,c, IF(MOD(c, 2)=1, INDEX(parts, 1, (c+1)/2), IF((c/2)<=ROWS(args), INDEX(args, c/2, 1), "{}")))))))
+
+String
+TextToArray
+Reverse of Excel built-in function ArrayToText
+=LAMBDA(text,LET(Length, LEN(text) - 2, modifiedText, LEFT(REPLACE(text, 1, 1, ""), Length), TEXTSPLIT(modifiedText, ",", ";")))
 
 Table
 CondenseTableToStr_Bracket
@@ -161,7 +181,7 @@ Expand a string that containing table data.
 Table
 GetColumnArr
 Get the Range of the Whole Column of Input Reference Cell
-=LAMBDA(refCell,LET(ColumnNumber,COLUMN(refCell),sheetName,'Lambda Function List'!GetWorksheetName(refCell),colRefLocal,TEXTJOIN(":",TRUE,'Lambda Function List'!NumberToLetter(ColumnNumber),'Lambda Function List'!NumberToLetter(ColumnNumber)),colRefWB,"'"&sheetName&"'!"&colRefLocal,INDIRECT(colRefWB)))
+=LAMBDA(refCell,LET(ColumnNumber,COLUMN(refCell),sheetName,Lambda!GetWorksheetName(refCell),colRefLocal,TEXTJOIN(":",TRUE,Lambda!NumberToLetter(ColumnNumber),Lambda!NumberToLetter(ColumnNumber)),colRefWB,"'"&sheetName&"'!"&colRefLocal,INDIRECT(colRefWB)))
 
 Table
 GetTableRange
@@ -185,7 +205,7 @@ Repeat an array n times. Repeat(array, n, [mode]). mode{1:element-wise, 2:whole 
 
 Table
 Flatten
-To flatten a 2D array into a 1D array
+Flatten a 2D array into a 1D array. (array, boolean)
 =LAMBDA(arr,[by_col],LET(array,IF(by_col=TRUE,TRANSPOSE(arr),arr),INDEX(array,ROUNDUP(SEQUENCE(ROWS(array)*COLUMNS(array))/COLUMNS(array),0),MOD(SEQUENCE(ROWS(array)*COLUMNS(array),,0),COLUMNS(array))+1)))
 
 Table
@@ -231,7 +251,7 @@ To find the NEXT elements that connected to an element 'cEle'. Last Update at 20
 -
 _FilterDatabase
 
-='Lambda Function List'!$C$5:$F$5
+=Lambda!$C$5:$F$5
 
 -
 FindEle_NextMultiple
