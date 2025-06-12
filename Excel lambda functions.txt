@@ -56,7 +56,7 @@ Approximately convert Hong Kong Easting and Northing to Latitute and Longitutude
 Coordinates
 LatLong_to_HKCoor
 Approximately convert Latitute and Longitutude to Hong Kong Easting and Northing
-=LAMBDA(lat, long, LET(E, 836694.05 + 103000 * (long - 114.178555555556), N, 819069.8 + 111000 * (lat - 22.3121333333333), HSTACK(E, N)))
+=LAMBDA(lat,long, LET(E, 836694.05 + 103000 * (long - 114.178555555556), N, 819069.8 + 111000 * (lat - 22.3121333333333), HSTACK(E, N)))
 
 Drainage
 GetMHInfoFromPipeSch
@@ -222,6 +222,26 @@ Water
 SolveLevels
 Input: Length in m. Fall (1:xxx). Upstream Level in mPD. Downstream Level in mPD. Fall, Upstream and Downstream --> Input 2 out of 3
 =LAMBDA(Length,[fall],[upstreamLevel],[downstreamLevel],LET(isInputFall,IF(OR(ISOMITTED(fall),fall="",fall=0),FALSE,TRUE),isInputUpLevel,IF(OR(ISOMITTED(upstreamLevel),upstreamLevel=""),FALSE,TRUE),isInputDownLevel,IF(OR(ISOMITTED(downstreamLevel),downstreamLevel=""),FALSE,TRUE),validateInput,IF(SUM(isInputFall,isInputDownLevel,isInputUpLevel)=2,TRUE,FALSE),CalFall,Length/(upstreamLevel-downstreamLevel),CalUpstream,downstreamLevel+Length/fall,CalDownstream,upstreamLevel-Length/fall,IF(validateInput,HSTACK(IF(isInputFall,fall,CalFall),IF(isInputUpLevel,upstreamLevel,CalUpstream),IF(isInputDownLevel,downstreamLevel,CalDownstream)),"Please Input 2 out of 3 Items")))
+
+Object: PolyLine
+Line
+Create a Line object
+=LAMBDA(x_1,y_1,x_2,y_2, ARRAYTOTEXT(VSTACK(HSTACK(x_1, y_1), HSTACK(x_2, y_2)),1))
+
+Object: PolyLine
+PolyLine
+Create a PolyLine object
+=LAMBDA(x,y,ARRAYTOTEXT(HSTACK(x,y),1))
+
+Object: PolyLine
+Line_Intersection
+Return intersection point of two lines as (x, y)
+=LAMBDA(x_1,y_1,x_2,y_2,x_3,y_3,x_4,y_4,LET(div,(x_1-x_2)*(y_3-y_4)-(y_1-y_2)*(x_3-x_4),d_1,x_1*y_2-y_1*x_2,d_2,x_3*y_4-y_3*x_4,IF(div=0,NA(),LET(interX,(d_1*(x_3-x_4)-(x_1-x_2)*d_2)/div,interY,(d_1*(y_3-y_4)-(y_1-y_2)*d_2)/div,t,((x_1-x_3)*(y_3-y_4)-(y_1-y_3)*(x_3-x_4))/div,u,((x_1-x_3)*(y_1-y_2)-(y_1-y_3)*(x_1-x_2))/div,IF(AND(t>=0,t<=1,u>=0,u<=1),HSTACK(interX,interY),NA())))))
+
+Object: PolyLine
+PolyLine_Intersection
+Return all intersection points of two Polylines. Polylines shall be inputted in String format with the PolyLine lambda function. 
+=LAMBDA(polyline_1,polyline_2, LET(author, "Kinen Ma, Copilot", version, "2025-06-12, v1", arr_1, NUMBERVALUE(Lambda!TextToArray(polyline_1)), arr_2, NUMBERVALUE(Lambda!TextToArray(polyline_2)), n_1, ROWS(arr_1), n_2, ROWS(arr_2), total_seg, (n_1 - 1) * (n_2 - 1), result_final, IF(total_seg = 0, "", LET(inter_x_arr, MAKEARRAY(total_seg, 1, LAMBDA(r,dummy, LET(i, INT((r - 1) / (n_2 - 1)) + 1, j, MOD(r - 1, (n_2 - 1)) + 1, x_1, INDEX(arr_1, i, 1), y_1, INDEX(arr_1, i, 2), x_2, INDEX(arr_1, i + 1, 1), y_2, INDEX(arr_1, i + 1, 2), x_3, INDEX(arr_2, j, 1), y_3, INDEX(arr_2, j, 2), x_4, INDEX(arr_2, j + 1, 1), y_4, INDEX(arr_2, j + 1, 2), div, (x_1 - x_2) * (y_3 - y_4) - (y_1 - y_2) * (x_3 - x_4), d_1, x_1 * y_2 - y_1 * x_2, d_2, x_3 * y_4 - y_3 * x_4, result, IF(div = 0, NA(), LET(t, ((x_1 - x_3) * (y_3 - y_4) - (y_1 - y_3) * (x_3 - x_4)) / div, u, ((x_1 - x_3) * (y_1 - y_2) - (y_1 - y_3) * (x_1 - x_2)) / div, IF(AND(t >= 0, t <= 1, u >= 0, u <= 1), (d_1 * (x_3 - x_4) - (x_1 - x_2) * d_2) / div, NA()))), result))), inter_y_arr, MAKEARRAY(total_seg, 1, LAMBDA(r,dummy, LET(i, INT((r - 1) / (n_2 - 1)) + 1, j, MOD(r - 1, (n_2 - 1)) + 1, x_1, INDEX(arr_1, i, 1), y_1, INDEX(arr_1, i, 2), x_2, INDEX(arr_1, i + 1, 1), y_2, INDEX(arr_1, i + 1, 2), x_3, INDEX(arr_2, j, 1), y_3, INDEX(arr_2, j, 2), x_4, INDEX(arr_2, j + 1, 1), y_4, INDEX(arr_2, j + 1, 2), div, (x_1 - x_2) * (y_3 - y_4) - (y_1 - y_2) * (x_3 - x_4), d_1, x_1 * y_2 - y_1 * x_2, d_2, x_3 * y_4 - y_3 * x_4, result, IF(div = 0, NA(), LET(t, ((x_1 - x_3) * (y_3 - y_4) - (y_1 - y_3) * (x_3 - x_4)) / div, u, ((x_1 - x_3) * (y_1 - y_2) - (y_1 - y_3) * (x_1 - x_2)) / div, IF(AND(t >= 0, t <= 1, u >= 0, u <= 1), (d_1 * (y_3 - y_4) - (y_1 - y_2) * d_2) / div, NA()))), result))), intersections_matrix, HSTACK(inter_x_arr, inter_y_arr), FILTER(intersections_matrix, ISNUMBER(INDEX(intersections_matrix, , 1)), ""))), result_final))
 
 -
 FindEle_MemberFirstEle
