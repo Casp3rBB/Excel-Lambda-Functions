@@ -235,8 +235,8 @@ Create a PolyLine object
 
 Object: PolyLine
 Line_Intersection
-Return intersection point of two lines as (x, y)
-=LAMBDA(x_1,y_1,x_2,y_2,x_3,y_3,x_4,y_4,LET(div,(x_1-x_2)*(y_3-y_4)-(y_1-y_2)*(x_3-x_4),d_1,x_1*y_2-y_1*x_2,d_2,x_3*y_4-y_3*x_4,IF(div=0,NA(),LET(interX,(d_1*(x_3-x_4)-(x_1-x_2)*d_2)/div,interY,(d_1*(y_3-y_4)-(y_1-y_2)*d_2)/div,t,((x_1-x_3)*(y_3-y_4)-(y_1-y_3)*(x_3-x_4))/div,u,((x_1-x_3)*(y_1-y_2)-(y_1-y_3)*(x_1-x_2))/div,IF(AND(t>=0,t<=1,u>=0,u<=1),HSTACK(interX,interY),NA())))))
+Return intersection point of two lines as (x, y). Extrapolate default to False, which only checks the intersection within the boundary, if set to true means consider infinite line. 
+=LAMBDA(x_1,y_1,x_2,y_2,x_3,y_3,x_4,y_4,extrapolate, LET(div, (x_1 - x_2) * (y_3 - y_4) - (y_1 - y_2) * (x_3 - x_4), d_1, x_1 * y_2 - y_1 * x_2, d_2, x_3 * y_4 - y_3 * x_4, IF(div = 0, NA(), LET(interX, (d_1 * (x_3 - x_4) - (x_1 - x_2) * d_2) / div, interY, (d_1 * (y_3 - y_4) - (y_1 - y_2) * d_2) / div, t, ((x_1 - x_3) * (y_3 - y_4) - (y_1 - y_3) * (x_3 - x_4)) / div, u, ((x_1 - x_3) * (y_1 - y_2) - (y_1 - y_3) * (x_1 - x_2)) / div, IF(extrapolate, HSTACK(interX, interY), IF(AND(t >= 0, t <= 1, u >= 0, u <= 1), HSTACK(interX, interY), NA()))))))
 
 Object: PolyLine
 PolyLine_Intersection
